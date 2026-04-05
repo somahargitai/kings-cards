@@ -1,0 +1,14 @@
+{
+  "name": "kings-card",
+  "private": true,
+  "workspaces": ["client", "server", "shared"],
+  "dependencies": {
+    "drizzle-orm": "^0.45.2"
+  },
+  "scripts": {
+    "dev:client": "npm run dev --workspace=client",
+    "dev:server": "npm run dev --workspace=server",
+    "build:client": "npm run build --workspace=client",
+    "build:server": "npm run build --workspace=server"
+  }
+}
