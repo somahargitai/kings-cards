@@ -14,7 +14,7 @@ passport.use(
     {
       clientID: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-      callbackURL: `${env.NODE_ENV === 'production' ? 'https://api.kingscards.app' : 'http://localhost:3001'}/api/auth/google/callback`,
+      callbackURL: `${env.NODE_ENV === 'production' ? env.FRONTEND_URL : 'http://localhost:3001'}/api/auth/google/callback`,
     },
     async (_accessToken, _refreshToken, profile: Profile, done) => {
       try {
