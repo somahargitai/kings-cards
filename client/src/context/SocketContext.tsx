@@ -19,7 +19,7 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
 
     const socket = io('/game', {
       withCredentials: true,
-      transports: ['websocket', 'polling'],
+      transports: ['polling', 'websocket'],
     });
 
     socket.on('connect', () => setConnected(true));

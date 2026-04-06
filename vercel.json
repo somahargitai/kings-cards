@@ -10,6 +10,10 @@
     {
       "source": "/socket.io/:path*",
       "destination": "https://kings-cards-server.fly.dev/socket.io/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
