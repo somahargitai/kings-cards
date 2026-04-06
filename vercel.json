@@ -5,11 +5,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "$BACKEND_URL/api/:path*"
+      "destination": "https://kings-cards-server.fly.dev/api/:path*"
     },
     {
       "source": "/socket.io/:path*",
-      "destination": "$BACKEND_URL/socket.io/:path*"
+      "destination": "https://kings-cards-server.fly.dev/socket.io/:path*"
     }
   ]
 }
