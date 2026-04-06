@@ -158,6 +158,14 @@ fly deploy --config server/fly.toml --dockerfile server/Dockerfile
 
 See [SYSTEM_DESIGN.md — Cloud Infrastructure](./SYSTEM_DESIGN.md#3-cloud-infrastructure--resources) for full deployment details.
 
+#### Ping the server
+
+Replace `kings-cards-server.fly.dev` with your actual Fly.io deployment URL and run:
+
+```bash
+curl https://kings-cards-server.fly.dev/api/health
+```
+
 ---
 
 ## Tech stack
