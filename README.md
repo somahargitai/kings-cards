@@ -32,7 +32,7 @@ For the full architecture, database schema, API reference, and WebSocket event p
 | Google OAuth credentials | A Google Cloud project with OAuth 2.0 client ID and secret. Authorised redirect URI must include `http://localhost:3001/api/auth/google/callback` for local development. |
 | Neon Postgres database | A free [Neon](https://neon.tech) project. Copy the connection string from the Neon console. |
 
-To know more about setting up credentials, check out the [credentials setup guide](./docs/credentials-setup.md).
+To know more about setting up credentials, check out the [credentials setup guide](./docs/credentials-setup.md). The same guide covers [Fly.io secrets](./docs/credentials-setup.md#6-production-secrets--flyio-backend) and [Vercel environment variables](./docs/credentials-setup.md#7-production-secrets--vercel-frontend) for production deployment.
 
 ---
 
@@ -120,7 +120,43 @@ npm run build:client
 npm run build:server
 ```
 
-The server Dockerfile in `server/Dockerfile` handles a multi-stage build for deployment to Fly.io. See [SYSTEM_DESIGN.md — Cloud Infrastructure](./SYSTEM_DESIGN.md#3-cloud-infrastructure--resources) for deployment details.
+The server Dockerfile in `server/Dockerfile` handles a multi-stage build for deployment to Fly.io.
+
+### Deploying the server to Fly.io
+
+#### First-time setup
+
+1. **Authenticate** with Fly.io:
+
+   ```bash
+   fly auth login
+   ```
+
+2. **Initialise the app** (creates the app on Fly.io and generates `server/fly.toml`):
+
+   ```bash
+   fly launch --config server/fly.toml
+   ```
+
+   Choose your region and machine size when prompted. The generated `fly.toml` is already committed to the repo, so skip this step if it already exists.
+
+3. **Deploy**:
+
+   ```bash
+   fly deploy --config server/fly.toml --dockerfile server/Dockerfile
+   ```
+
+   Run all commands from the repository root. The explicit `--config` and `--dockerfile` flags are required because both files live inside `server/` rather than at the root.
+
+#### Subsequent deploys
+
+After any code change, redeploy with:
+
+```bash
+fly deploy --config server/fly.toml --dockerfile server/Dockerfile
+```
+
+See [SYSTEM_DESIGN.md — Cloud Infrastructure](./SYSTEM_DESIGN.md#3-cloud-infrastructure--resources) for full deployment details.
 
 ---
 

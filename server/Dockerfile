@@ -15,4 +15,4 @@ COPY --from=builder /app/shared/ ./shared/
 COPY package.json ./
 RUN npm install --workspace=server --omit=dev --ignore-scripts
 EXPOSE 3001
-CMD ["node", "server/dist/index.js"]
+CMD ["node", "server/dist/server/src/index.js"]

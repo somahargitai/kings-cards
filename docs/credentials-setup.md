@@ -76,3 +76,46 @@ These have sensible defaults for local development and do not need to be changed
 | `PORT` | `3001` |
 | `NODE_ENV` | `development` |
 | `JWT_EXPIRES_IN` | `24h` |
+
+---
+
+## 6. Production secrets — Fly.io (backend)
+
+Set these with `fly secrets set` from the repository root. Fly.io injects them as environment variables at runtime — never put them in `fly.toml`.
+
+```bash
+fly secrets set \
+  DATABASE_URL="<your-neon-database-url>" \
+  GOOGLE_CLIENT_ID="<your-google-client-id>" \
+  GOOGLE_CLIENT_SECRET="<your-google-client-secret>" \
+  JWT_SECRET="<random-64-char-hex-string>" \
+  SESSION_SECRET="<random-64-char-hex-string>" \
+  FRONTEND_URL="https://kings-cards.vercel.app" \
+  NODE_ENV="production" \
+  --config server/fly.toml
+```
+
+> Update `FRONTEND_URL` to your actual Vercel deployment URL once it is known.
+
+Also add the production callback URL to your Google OAuth client in the Cloud Console:
+
+```
+https://kings-cards-server.fly.dev/api/auth/google/callback
+```
+
+---
+
+## 7. Production secrets — Vercel (frontend)
+
+Set this in the Vercel dashboard under **Project → Settings → Environment Variables**, or via CLI:
+
+```bash
+vercel env add VITE_API_URL production
+# Enter value: https://kings-cards-server.fly.dev
+```
+
+| Variable | Value |
+|----------|-------|
+| `VITE_API_URL` | `https://kings-cards-server.fly.dev` |
+
+This tells the React app where the backend API is. Without it the client falls back to a relative URL, which only works when both are on the same origin.

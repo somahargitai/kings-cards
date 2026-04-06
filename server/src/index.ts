@@ -14,6 +14,7 @@ import { profileRouter } from './routes/profile';
 import { registerSocketHandlers } from './socket/handlers';
 
 const app = express();
+app.set('trust proxy', 1); // Trust Fly.io's proxy for accurate client IPs
 const server = http.createServer(app);
 
 // CORS
