@@ -17,9 +17,10 @@ export function SocketProvider({ children }: { children: React.ReactNode }) {
   const connect = (): Socket => {
     if (socketRef.current?.connected) return socketRef.current;
 
-    const socket = io('/game', {
+    const socketUrl = import.meta.env.VITE_SOCKET_URL ?? '';
+    const socket = io(`${socketUrl}/game`, {
       withCredentials: true,
-      transports: ['polling', 'websocket'],
+      transports: ['websocket', 'polling'],
     });
 
     socket.on('connect', () => setConnected(true));

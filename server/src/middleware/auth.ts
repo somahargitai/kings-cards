@@ -42,7 +42,7 @@ export function setTokenCookie(res: Response, token: string): void {
   res.cookie('token', token, {
     httpOnly: true,
     secure: env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'none',
     maxAge: 24 * 60 * 60 * 1000, // 24h
   });
 }

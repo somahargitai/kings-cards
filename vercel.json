@@ -8,10 +8,6 @@
       "destination": "https://kings-cards-server.fly.dev/api/:path*"
     },
     {
-      "source": "/socket.io(?<rest>.*)",
-      "destination": "https://kings-cards-server.fly.dev/socket.io$rest"
-    },
-    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
