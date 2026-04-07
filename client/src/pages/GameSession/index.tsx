@@ -52,10 +52,12 @@ export default function GameSession() {
       return;
     }
 
-    const socket = connect();
-    socketRef.current = socket;
+    let cancelled = false;
 
-    socket.emit('teacher:join', { sessionId });
+    connect().then((socket) => {
+      if (cancelled) return;
+      socketRef.current = socket;
+      socket.emit('teacher:join', { sessionId });
 
     socket.on('session:state', (state: GameSessionState) => {
       setGameState(state);
@@ -117,9 +119,11 @@ export default function GameSession() {
       setPhase('completed');
     });
 
-    socket.on('game:abandoned', () => setPhase('abandoned'));
+      socket.on('game:abandoned', () => setPhase('abandoned'));
+    });
 
     return () => {
+      cancelled = true;
       disconnect();
     };
   }, [sessionId]);
