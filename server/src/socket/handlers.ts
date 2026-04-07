@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { gameSessions as gameSessionsTable, cardPairs, games, teachers } from '../db/schema';
 import { env } from '../config/env';
+import { logger } from '../config/logger';
 import { JwtPayload } from '../middleware/auth';
 import {
   gameSessions,
@@ -33,6 +34,7 @@ export function registerSocketHandlers(io: Server, socket: Socket): void {
 
       const actualToken = token ?? cookieToken;
       if (!actualToken) {
+        logger.warn(`Socket auth failed — no token [socket=${socket.id}]`);
         socket.emit('error', { code: 'UNAUTHORIZED', message: 'Authentication required' });
         return;
       }
@@ -41,6 +43,7 @@ export function registerSocketHandlers(io: Server, socket: Socket): void {
       try {
         payload = jwt.verify(actualToken, env.JWT_SECRET) as JwtPayload;
       } catch {
+        logger.warn(`Socket auth failed — invalid token [socket=${socket.id}]`);
         socket.emit('error', { code: 'INVALID_TOKEN', message: 'Invalid token' });
         return;
       }
@@ -101,7 +104,7 @@ export function registerSocketHandlers(io: Server, socket: Socket): void {
         participantCount: state.participants.size,
       });
     } catch (err) {
-      console.error('teacher:join error', err);
+      logger.error('teacher:join error', { error: err, sessionId, socketId: socket.id });
       socket.emit('error', { code: 'SERVER_ERROR', message: 'Server error' });
     }
   });
@@ -162,7 +165,7 @@ export function registerSocketHandlers(io: Server, socket: Socket): void {
         participantCount: Array.from(state.participants.values()).filter((p) => p.connected).length,
       });
     } catch (err) {
-      console.error('student:join error', err);
+      logger.error('student:join error', { error: err, joinCode, socketId: socket.id });
       socket.emit('error', { code: 'SERVER_ERROR', message: 'Server error' });
     }
   });
@@ -212,7 +215,7 @@ export function registerSocketHandlers(io: Server, socket: Socket): void {
         cols: state.cols,
       });
     } catch (err) {
-      console.error('game:start error', err);
+      logger.error('game:start error', { error: err, sessionId, socketId: socket.id });
       socket.emit('error', { code: 'SERVER_ERROR', message: 'Server error' });
     }
   });
@@ -269,7 +272,7 @@ export function registerSocketHandlers(io: Server, socket: Socket): void {
             db.update(gameSessionsTable)
               .set({ status: 'completed', endedAt: new Date() })
               .where(eq(gameSessionsTable.id, sessionId))
-              .catch(console.error);
+              .catch((err) => logger.error('DB update error in socket handler', { error: err }));
 
             io.to(sessionId).emit('game:completed', {
               totalPairs: state.totalPairs,
@@ -302,7 +305,7 @@ export function registerSocketHandlers(io: Server, socket: Socket): void {
         }
       }
     } catch (err) {
-      console.error('card:flip error', err);
+      logger.error('card:flip error', { error: err, socketId: socket.id });
     }
   });
 
@@ -341,7 +344,7 @@ export function registerSocketHandlers(io: Server, socket: Socket): void {
     db.update(gameSessionsTable)
       .set({ currentFlipDelay: flipBackDelay })
       .where(eq(gameSessionsTable.id, sessionId))
-      .catch(console.error);
+      .catch((err) => logger.error('DB update error in socket handler', { error: err }));
 
     io.to(sessionId).emit('settings:updated', { flipBackDelay });
   });

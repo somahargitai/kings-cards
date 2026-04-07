@@ -5,8 +5,10 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import passport from 'passport';
 import rateLimit from 'express-rate-limit';
+import morgan from 'morgan';
 import { Server } from 'socket.io';
 import { env } from './config/env';
+import { logger } from './config/logger';
 import { authRouter } from './routes/auth';
 import { gamesRouter } from './routes/games';
 import { sessionsRouter } from './routes/sessions';
@@ -16,6 +18,14 @@ import { registerSocketHandlers } from './socket/handlers';
 const app = express();
 app.set('trust proxy', 1); // Trust Fly.io's proxy for accurate client IPs
 const server = http.createServer(app);
+
+// HTTP request logging via Morgan → Winston
+app.use(
+  morgan('combined', {
+    stream: { write: (message) => logger.http(message.trim()) },
+    skip: (_req, res) => res.statusCode < 400, // only log errors in production
+  }),
+);
 
 // CORS
 app.use(
@@ -52,7 +62,7 @@ app.use('/api/profile', profileRouter);
 
 // Error handler
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
-  console.error(err.stack);
+  logger.error('Unhandled Express error', { message: err.message, stack: err.stack });
   res.status(500).json({ error: { code: 'SERVER_ERROR', message: 'Internal server error' } });
 });
 
@@ -69,13 +79,13 @@ const io = new Server(server, {
 const gameNs = io.of('/game');
 
 gameNs.on('connection', (socket) => {
-  console.log(`Socket connected: ${socket.id}`);
+  logger.info(`Socket connected: ${socket.id}`);
   registerSocketHandlers(gameNs as any, socket);
-  socket.on('disconnect', () => console.log(`Socket disconnected: ${socket.id}`));
+  socket.on('disconnect', () => logger.info(`Socket disconnected: ${socket.id}`));
 });
 
 server.listen(env.PORT, () => {
-  console.log(`Server running on port ${env.PORT} [${env.NODE_ENV}]`);
+  logger.info(`Server running on port ${env.PORT} [${env.NODE_ENV}]`);
 });
 
 export { server, io };

@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../db';
 import { allowedTeachers, teachers } from '../db/schema';
 import { env } from '../config/env';
+import { logger } from '../config/logger';
 import { requireAuth, issueToken, setTokenCookie, JwtPayload } from '../middleware/auth';
 
 // Configure Passport Google Strategy
@@ -83,7 +84,7 @@ router.get('/google/callback', (req: Request, res: Response) => {
     { session: false, failureRedirect: `${env.FRONTEND_URL}/unauthorized` },
     (err: Error | null, teacher: any, info: any) => {
       if (err) {
-        console.error('OAuth error:', err);
+        logger.error('OAuth callback error', { message: err.message, stack: err.stack });
         return res.redirect(`${env.FRONTEND_URL}/unauthorized`);
       }
       if (!teacher) {
@@ -125,6 +126,11 @@ router.get('/me', requireAuth, async (req: Request, res: Response): Promise<void
   }
 
   res.json(teacher);
+});
+
+router.get('/token', requireAuth, (req: Request, res: Response) => {
+  const token = req.cookies?.token as string;
+  res.json({ token });
 });
 
 router.post('/logout', requireAuth, (_req: Request, res: Response) => {
