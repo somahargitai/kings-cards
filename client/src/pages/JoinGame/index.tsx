@@ -109,11 +109,11 @@ export default function JoinGame() {
     }
     setNicknameError('');
 
-    const socket = connect();
-    socketRef.current = socket;
-    setupSocketListeners(socket);
-
-    socket.emit('student:join', { joinCode: joinCode?.toUpperCase(), nickname: trimmed });
+    connect().then((socket) => {
+      socketRef.current = socket;
+      setupSocketListeners(socket);
+      socket.emit('student:join', { joinCode: joinCode?.toUpperCase(), nickname: trimmed });
+    });
   };
 
   useEffect(() => {
