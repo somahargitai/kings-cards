@@ -8,6 +8,10 @@
       "destination": "https://kings-cards-server.fly.dev/api/:path*"
     },
     {
+      "source": "/socket.io",
+      "destination": "https://kings-cards-server.fly.dev/socket.io"
+    },
+    {
       "source": "/socket.io/:path*",
       "destination": "https://kings-cards-server.fly.dev/socket.io/:path*"
     },
