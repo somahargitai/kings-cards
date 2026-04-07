@@ -56,7 +56,7 @@ router.post('/games/:id/sessions', requireAuth, async (req: Request, res: Respon
     })
     .returning();
 
-  const baseUrl = env.NODE_ENV === 'production' ? 'https://kingscards.app' : env.FRONTEND_URL;
+  const baseUrl = env.FRONTEND_URL;
   res.status(201).json({
     sessionId: session.id,
     joinCode: session.joinCode,
